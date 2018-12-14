@@ -1,0 +1,149 @@
+<html>
+<head>
+    <title>City Finder</title>
+    <script
+      src="http://code.jquery.com/jquery-3.2.1.min.js">
+      
+      
+    
+    </script>
+</head>
+<body>
+    <form>
+        Enter a city in Utah (All caps, please!): <input type="text" id="cityField" value=""><br>
+        Suggestion: <span id="txtHint">Empty</span>
+        <input id="weatherButton" type="submit" value="Submit">
+    </form>
+    
+    <p>City</p>
+    <textarea id="displayCity">No City</textarea>
+    
+    <p>Current Weather</p>
+    
+   <!-- <div id="weather">No city specified.</div>!-->
+    
+    <form>
+        Owlbot access: <input type="text" id="searchWord" value=""><br>
+        
+        <input id="searchButton" type="submit" value="Lookup owlbot definition for word">
+    </form>
+    
+    <p>Owlbot Lookup Word</p>
+    <textarea id="searchResults">No word given.</textarea>
+    
+    <script>
+    
+    $(document).ready(function() {
+         
+         $("#searchButton").click(function(e){
+            var value = $("#searchWord").val();
+            var questurl = "/word?w="+value;
+          
+            console.log("Word: " +value);
+            
+            e.preventDefault();
+            $("#searchResults").text(value);
+            
+             $.getJSON(questurl,function(data) {
+                 var everything;
+                everything = "<ol>";
+                
+                for(var i = 0; i < data.items.length; i++) {
+                    
+                    //var question = JSON.stringify(data.items[i].title);
+                    //var link = JSON.stringify(data.items[i].link);
+                    //var question = question.slice(1, -1); //Remote beginning and ending quotes!
+                    //var link = link.slice(1, -1);
+                   // everything +="<li><a href=\""+link+"\">"+question+"</a><br/><br/></li>";
+                   everything+="<li>"+JSON.stringify(data.items[i]);
+                    
+                }
+                
+                everything += "</ol>";
+                
+                $("#searchResults").html(everything);
+            })
+                
+              console.log(questurl);
+             
+        });
+         
+         
+         
+        $("#weatherButton").click(function(e){
+            var value = $("#cityField").val();
+            
+            //var myurl= "https://api.openweathermap.org/data/2.5/weather?units=imperial&appid=3224934a34fa83288a38cc3bb4bf53a1&q=";
+            
+            var myurl = "getcity?q="+value;//$("#cityfield").val();
+            //myurl += value;
+              
+            console.log(value);
+            e.preventDefault();
+            $("#displayCity").text(value);
+            
+             $.getJSON(myurl,function(data) {
+                var everything;
+                everything = "<ul>";
+                $.each(data, function(i,item) {
+                  everything += "<li> "+data[i].city;
+                });
+                everything += "</ul>";
+                 console.log(everything);
+            })
+            
+              console.log(myurl);
+             /*
+              $.ajax({
+                url : myurl,
+                dataType : "json",
+                    success : function(parsed_json) {
+                        var location = parsed_json['name'];
+                        var weather = parsed_json['weather'][0]['main'];
+                        var temp = parsed_json['main']['temp'];
+                        var weather_icon = parsed_json['weather'][0]['icon'];
+                        var humidity = parsed_json['main']['humidity'];
+                        var temp_min = parsed_json['main']['temp_min'];
+                        var temp_max = parsed_json['main']['temp_max'];
+                        var wind_speed = parsed_json['wind']['speed'];
+                        everything = "<img src=\"http://openweathermap.org/img/w/" + weather_icon + ".png\"/>"
+                        everything += "<ul>";
+                        everything += "<li>Location: " + location;
+                        everything += "<li>Weather: " + weather + " (" + temp + "&#8457;)";
+                        everything += "<li>Low: " + temp_min + "&#8457; | High: " + temp_max + "&#8457;";
+                        everything += "<li>Humidity: " + humidity + "%";
+                        everything += "<li>Wind: " + wind_speed + " mph";
+                        everything += "</ul>";
+                        $("#weather").html(everything);
+                    }
+              });*/
+        });
+         
+         
+        $( "#cityField" ).keyup(function() {
+            var url = "http://bioresearch.byu.edu/cs260/jquery/getcity.cgi?q="+$("#cityField").val();
+
+            $.getJSON(url,function(data) {
+                var suggestions;
+                suggestions = "<ul>";
+                $.each(data, function(i,item) {
+                  suggestions += "<li> "+data[i].city;
+                });
+                suggestions += "</ul>";
+                $("#txtHint").html(suggestions);
+            })
+            .done(function() { console.log('getJSON request (keyup) succeeded!'); })
+            .fail(function(jqXHR, textStatus, errorThrown) { 
+                console.log('getJSON request failed! ' + textStatus); 
+                console.log("incoming "+jqXHR.responseText);
+            })
+            .always(function() { console.log('getJSON request (keyup) ended!');
+            });
+        });
+    
+     });
+     
+    </script>
+
+</body>
+</html>
